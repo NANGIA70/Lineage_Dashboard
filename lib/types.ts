@@ -1,43 +1,4 @@
-// Types for the Lineage Dashboard
-
-export interface Run {
-  id: string
-  workflow: string
-  startTime: string
-  endTime: string | null
-  status: "running" | "completed" | "failed" | "pending"
-  owner: string
-}
-
-export interface Metric {
-  id: string
-  name: string
-  context: string
-  period: string
-  entity: string
-  value: number
-  units: string
-  lastUpdated: string
-}
-
-export interface Dataset {
-  id: string
-  name: string
-  type: string
-  source: string
-  version: string
-  lastUpdated: string
-}
-
-export interface Narrative {
-  id: string
-  name: string
-  runId: string
-  section: string
-  createdAt: string
-  content: string
-}
-
+// Core entities
 export interface User {
   id: string
   name: string
@@ -46,11 +7,98 @@ export interface User {
   lastActive: string
 }
 
+export interface Document {
+  id: string
+  name: string // e.g., "AQRR – Company XYZ – 2024"
+  type: "AQRR" | "Credit Memo" | "Risk Report" | "Regulatory Filing"
+  company: string
+  period: string // e.g., "Q4 2024", "FY 2024"
+  status: "draft" | "in_review" | "approved" | "published"
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+  currentRunId: string | null
+}
+
+export interface Run {
+  id: string
+  documentId: string
+  workflowName: string
+  startTime: string
+  endTime: string | null
+  status: "running" | "completed" | "failed" | "pending"
+  triggeredBy: string
+  version: number // Run version for this document
+}
+
+// Content within a Run
+export interface RunTable {
+  id: string
+  runId: string
+  name: string // e.g., "HFA Table", "FSA Table", "Leverage Table"
+  type: "hfa" | "fsa" | "leverage" | "credit" | "summary" | "custom"
+  rowCount: number
+  columnCount: number
+}
+
+export interface TableCell {
+  rowIndex: number
+  colIndex: number
+  value: string | number
+  lineageId: string | null // Reference to lineage API
+  isMetric: boolean
+}
+
+export interface NarrativeSection {
+  id: string
+  runId: string
+  name: string // e.g., "Financial Statement Analysis", "Credit Comparables"
+  order: number
+  content: string // Contains text with {{METRIC:id}} placeholders
+}
+
+export interface NarrativeMetric {
+  id: string
+  sectionId: string
+  value: string
+  displayText: string // e.g., "12%", "$1.2M"
+  position: { start: number; end: number }
+  lineageId: string | null
+}
+
+// Lineage (universal component data)
+export interface LineageNode {
+  id: string
+  type: "source" | "transform" | "output"
+  name: string
+  metadata: Record<string, string>
+}
+
+export interface LineageData {
+  cellId: string
+  value: string | number
+  sourceTable: string
+  sourceCell: string
+  transformations: string[]
+  upstream: LineageNode[]
+  downstream: LineageNode[]
+}
+
+// Activity/Audit
 export interface Activity {
   id: string
-  type: "run" | "metric" | "dataset" | "narrative"
+  type: "document" | "run" | "approval"
   action: string
   user: string
   timestamp: string
   details: string
+  documentId?: string
+}
+
+// Dashboard stats
+export interface DashboardStats {
+  totalDocuments: number
+  totalRuns: number
+  failedRuns: number
+  pendingReviews: number
 }

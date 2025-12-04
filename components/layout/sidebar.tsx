@@ -5,14 +5,11 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Play, BarChart3, Database, FileText, Settings, ChevronLeft, ChevronRight } from "lucide-react"
+import { Home, FileText, Settings, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react"
 
 const navItems = [
-  { name: "Overview", href: "/", icon: LayoutDashboard },
-  { name: "Runs", href: "/runs", icon: Play },
-  { name: "Metrics", href: "/metrics", icon: BarChart3 },
-  { name: "Datasets", href: "/datasets", icon: Database },
-  { name: "Narratives", href: "/narratives", icon: FileText },
+  { name: "Home", href: "/", icon: Home },
+  { name: "Documents", href: "/documents", icon: FileText },
   { name: "Admin", href: "/admin", icon: Settings },
 ]
 
