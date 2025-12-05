@@ -16,7 +16,7 @@ export async function fetchLineage(valueRef: ValueRef | undefined): Promise<Line
     return {
       cellId: data.value.id,
       value: data.value.value ?? data.value.label ?? "",
-      sourceTable: data.value.tableId ?? "unknown",
+      sourceTable: data.value.table?.name ?? data.value.tableId ?? "unknown",
       sourceCell: `${data.value.rowIndex ?? "-"},${data.value.columnIndex ?? "-"}`,
       transformations: data.inputs?.map((i: any) => i.edge?.transformation).filter(Boolean) ?? [],
       upstream:

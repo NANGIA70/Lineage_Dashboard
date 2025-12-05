@@ -1,5 +1,14 @@
 import { PrismaClient } from "@prisma/client"
 
+/**
+ * UAT seed summary:
+ * - Documents: AQRR – Acme Q4 2024 (completed runs v3, v2), Credit Memo – Sterling 2024 (completed v1), Risk Report – Quantum Q3 2024.
+ * - Runs: AQRR v3 is primary for values/lineage; AQRR v2 and Credit Memo v1 present for navigation realism.
+ * - Key Value IDs (all seeded with data): VAL-REV-Q4/Q3/Q4-PRIOR/GROWTH/QOQ, VAL-GM-Q4/Q3/Yoy/QoQ, VAL-EBITDA-Q4/Q3/MARGIN, VAL-DEBT-Q4/Q3, VAL-LEVERAGE, VAL-NI-Q4/Q3, VAL-DSCR, VAL-CR, VAL-RATING, etc.
+ * - Lineage edges: revenue growth, gross margin, EBITDA margin, leverage chains connect inputs to outputs.
+ * - Narrative chunks link to these values for table/narrative click-through.
+ */
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -146,11 +155,24 @@ async function main() {
   const rev = createdValues.find((v) => v.id === "VAL-REV-Q4")!
   const revPrior = createdValues.find((v) => v.id === "VAL-REV-Q4-PRIOR")!
   const revGrowth = createdValues.find((v) => v.id === "VAL-REV-GROWTH")!
+  const gp = createdValues.find((v) => v.id === "VAL-GP-Q4")!
+  const gm = createdValues.find((v) => v.id === "VAL-GM-Q4")!
+  const ebitda = createdValues.find((v) => v.id === "VAL-EBITDA-Q4")!
+  const revenue = createdValues.find((v) => v.id === "VAL-REV-Q4")!
+  const debt = createdValues.find((v) => v.id === "VAL-DEBT-Q4")!
+  const leverage = createdValues.find((v) => v.id === "VAL-LEVERAGE")!
+  const ebitdaMargin = createdValues.find((v) => v.id === "VAL-EBITDA-MARGIN")!
 
   await prisma.lineageEdge.createMany({
     data: [
       { sourceValueId: revPrior.id, targetValueId: revGrowth.id, transformation: "previous period revenue", order: 1, runId: primaryRun.id },
       { sourceValueId: rev.id, targetValueId: revGrowth.id, transformation: "current period revenue", order: 2, runId: primaryRun.id },
+      { sourceValueId: gp.id, targetValueId: gm.id, transformation: "gross margin = gross profit / revenue", order: 1, runId: primaryRun.id },
+      { sourceValueId: revenue.id, targetValueId: gm.id, transformation: "gross margin = gross profit / revenue", order: 2, runId: primaryRun.id },
+      { sourceValueId: ebitda.id, targetValueId: ebitdaMargin.id, transformation: "ebitda margin = ebitda / revenue", order: 1, runId: primaryRun.id },
+      { sourceValueId: revenue.id, targetValueId: ebitdaMargin.id, transformation: "ebitda margin = ebitda / revenue", order: 2, runId: primaryRun.id },
+      { sourceValueId: debt.id, targetValueId: leverage.id, transformation: "leverage = debt / ebitda", order: 1, runId: primaryRun.id },
+      { sourceValueId: ebitda.id, targetValueId: leverage.id, transformation: "leverage = debt / ebitda", order: 2, runId: primaryRun.id },
     ],
   })
 

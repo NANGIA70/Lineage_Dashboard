@@ -17,6 +17,7 @@ export const valuesService = {
         edgesTo: { include: { sourceValue: true } },
         edgesFrom: { include: { targetValue: true } },
         chunks: { include: { chunk: true } },
+        table: true,
       },
     }),
 }

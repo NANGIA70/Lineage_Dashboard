@@ -43,6 +43,7 @@ export async function lineageRoutes(app: FastifyInstance) {
         tableId: value.tableId,
         rowIndex: value.rowIndex,
         columnIndex: value.columnIndex,
+        table: value.table ? { id: value.table.id, name: value.table.name, type: value.table.type } : null,
       },
       inputs,
       outputs,

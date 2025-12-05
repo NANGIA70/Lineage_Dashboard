@@ -141,6 +141,13 @@ async function main() {
   const rev = values[0]
   const revPrior = values[1]
   const revGrowth = values[2]
+  const gm = values.find((v) => v.id === "VAL-GM-Q4")!
+  const gp = values.find((v) => v.id === "VAL-GP-Q4")!
+  const ebitda = values.find((v) => v.id === "VAL-EBITDA-Q4")!
+  const revenue = values.find((v) => v.id === "VAL-REV-Q4")!
+  const debt = values.find((v) => v.id === "VAL-DEBT-Q4")!
+  const leverage = values.find((v) => v.id === "VAL-LEVERAGE")!
+  const ebitdaMargin = values.find((v) => v.id === "VAL-EBITDA-MARGIN")!
 
   await prisma.lineageEdge.createMany({
     data: [
@@ -155,6 +162,48 @@ async function main() {
         sourceValueId: rev.id,
         targetValueId: revGrowth.id,
         transformation: "current period revenue",
+        order: 2,
+        runId: run.id,
+      },
+      {
+        sourceValueId: gp.id,
+        targetValueId: gm.id,
+        transformation: "gross margin = gross profit / revenue",
+        order: 1,
+        runId: run.id,
+      },
+      {
+        sourceValueId: revenue.id,
+        targetValueId: gm.id,
+        transformation: "gross margin = gross profit / revenue",
+        order: 2,
+        runId: run.id,
+      },
+      {
+        sourceValueId: ebitda.id,
+        targetValueId: ebitdaMargin.id,
+        transformation: "ebitda margin = ebitda / revenue",
+        order: 1,
+        runId: run.id,
+      },
+      {
+        sourceValueId: revenue.id,
+        targetValueId: ebitdaMargin.id,
+        transformation: "ebitda margin = ebitda / revenue",
+        order: 2,
+        runId: run.id,
+      },
+      {
+        sourceValueId: debt.id,
+        targetValueId: leverage.id,
+        transformation: "leverage = debt / ebitda",
+        order: 1,
+        runId: run.id,
+      },
+      {
+        sourceValueId: ebitda.id,
+        targetValueId: leverage.id,
+        transformation: "leverage = debt / ebitda",
         order: 2,
         runId: run.id,
       },

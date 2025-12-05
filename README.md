@@ -1,30 +1,27 @@
-# Lineage Dashboard UI
+# Lineage Dashboard (Frontend + lineage-api)
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+This repo contains:
+- Next.js frontend (app router) for the Lineage Dashboard.
+- Independent lineage-api service (`services/lineage-api/`) built with Fastify + Prisma + Postgres.
+- Frontend `ValueRef.valueId` maps 1:1 to `values.id` in the lineage-api database for lineage queries.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/an3325-9161s-projects/v0-lineage-dashboard-ui)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/jBPqN3cESnn)
+## Quick start (demo/UAT)
+1) Start Postgres + lineage-api (docker-compose):
+   - `docker compose up -d postgres`
+   - `cd services/lineage-api`
+   - `export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lineage_api?schema=public`
+   - `npm run db:migrate`
+   - `npm run db:seed` or `tsx prisma/seed-uat.ts` (richer UAT)
+   - `npm run dev` (lineage-api on 3001)
+2) Frontend:
+   - In repo root `.env.local`: `LINEAGE_API_BASE_URL=http://localhost:3001`
+   - `npm install`
+   - `npm run dev` (Next.js on 3000)
+3) Open http://localhost:3000 and follow `UAT.md` for the click-through steps.
 
-## Overview
+## Frontend structure
+- DashboardLayout shell with Home, Documents, Admin.
+- Document Detail: metadata + runs table (click to run detail).
+- Run Detail: Overview, Tables, Narrative tabs; clicking values opens the Lineage Drawer fetching `/api/lineage/values/:valueId`.
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/an3325-9161s-projects/v0-lineage-dashboard-ui](https://vercel.com/an3325-9161s-projects/v0-lineage-dashboard-ui)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/jBPqN3cESnn](https://v0.app/chat/jBPqN3cESnn)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+For detailed UAT steps, see `UAT.md`.

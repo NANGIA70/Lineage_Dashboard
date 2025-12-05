@@ -1,7 +1,8 @@
-[00:00:00.746] Server  LOG      ✓ Ready in 517ms
-[00:00:05.481] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:05.482] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/documents/DOC-001/runs/RUN-001","route":"/documents/[id]/runs/[runId]"}
-[00:00:05.482] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/documents/DOC-001/runs/RUN-001 color: rgb(120, 120, 120) color: inherit {"dp":"/documents/[id]/runs/[runId]","o":"http://localhost:3000/documents/DOC-001/runs/RUN-001","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1764943935122}
-[00:06:42.741] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:06:42.741] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/documents/DOC-001/runs/RUN-001","route":"/documents/[id]/runs/[runId]"}
-[00:06:42.741] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/documents/DOC-001/runs/RUN-001 color: rgb(120, 120, 120) color: inherit {"dp":"/documents/[id]/runs/[runId]","o":"http://localhost:3000/documents/DOC-001/runs/RUN-001","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1764944333325}
+[00:00:00.501] Server  LOG      ✓ Ready in 333ms
+[00:00:03.383] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:03.384] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/documents/DOC-001/runs/RUN-001","route":"/documents/[id]/runs/[runId]"}
+[00:00:03.384] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/documents/DOC-001/runs/RUN-001 color: rgb(120, 120, 120) color: inherit {"dp":"/documents/[id]/runs/[runId]","o":"http://localhost:3000/documents/DOC-001/runs/RUN-001","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1764946868593}
+[00:00:08.513] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:08.513] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/documents/DOC-001/runs/RUN-001","route":"/documents/[id]/runs/[runId]"}
+[00:00:08.513] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/documents/DOC-001/runs/RUN-001 color: rgb(120, 120, 120) color: inherit {"dp":"/documents/[id]/runs/[runId]","o":"http://localhost:3000/documents/DOC-001/runs/RUN-001","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1764946874219}
+[00:00:19.691] Browser WARN    Lineage API non-200 (404); falling back to mock
