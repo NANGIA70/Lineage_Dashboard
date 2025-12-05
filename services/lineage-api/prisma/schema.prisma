@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  type       String
+  entity     String
+  period     String
+  status     String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  runs       Run[]
+}
+
+model Run {
+  id           String    @id @default(uuid())
+  document     Document  @relation(fields: [documentId], references: [id])
+  documentId   String
+  version      Int?
+  workflowName String
+  status       String
+  startTime    DateTime?
+  endTime      DateTime?
+  triggeredBy  String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  tables       Table[]
+  values       Value[]
+  lineageEdges LineageEdge[]
+  sections     NarrativeSection[]
+  chunks       NarrativeChunk[]
+
+  @@index([documentId, version])
+  @@index([status])
+}
+
+model Table {
+  id          String   @id @default(uuid())
+  run         Run      @relation(fields: [runId], references: [id])
+  runId       String
+  name        String
+  type        String
+  rowCount    Int?
+  columnCount Int?
+  schema      Json?
+  values      Value[]
+
+  @@index([runId])
+}
+
+model Value {
+  id          String   @id @default(uuid())
+  run         Run      @relation(fields: [runId], references: [id])
+  runId       String
+  table       Table?   @relation(fields: [tableId], references: [id])
+  tableId     String?
+  rowIndex    Int?
+  columnIndex Int?
+  label       String?
+  dataType    String?
+  value       String?
+  context     Json?
+  createdAt   DateTime @default(now())
+
+  edgesFrom LineageEdge[] @relation("EdgeSource")
+  edgesTo   LineageEdge[] @relation("EdgeTarget")
+  primaryIn NarrativeChunk[] @relation("PrimaryValue")
+  chunks    NarrativeChunkValue[]
+
+  @@index([runId])
+  @@index([tableId, rowIndex, columnIndex])
+}
+
+model LineageEdge {
+  id             String @id @default(uuid())
+  run            Run?   @relation(fields: [runId], references: [id])
+  runId          String?
+  sourceValue    Value  @relation("EdgeSource", fields: [sourceValueId], references: [id])
+  sourceValueId  String
+  targetValue    Value  @relation("EdgeTarget", fields: [targetValueId], references: [id])
+  targetValueId  String
+  transformation String?
+  order          Int?
+
+  @@index([targetValueId])
+  @@index([sourceValueId])
+  @@index([runId])
+}
+
+model NarrativeSection {
+  id     String   @id @default(uuid())
+  run    Run      @relation(fields: [runId], references: [id])
+  runId  String
+  title  String
+  order  Int
+  chunks NarrativeChunk[]
+
+  @@index([runId, order])
+}
+
+model NarrativeChunk {
+  id             String   @id @default(uuid())
+  section        NarrativeSection @relation(fields: [sectionId], references: [id])
+  sectionId      String
+  run            Run      @relation(fields: [runId], references: [id])
+  runId          String
+  content        String?
+  contentTokens  Json?
+  primaryValue   Value?   @relation("PrimaryValue", fields: [primaryValueId], references: [id])
+  primaryValueId String?
+  order          Int
+  values         NarrativeChunkValue[]
+
+  @@index([sectionId, order])
+  @@index([primaryValueId])
+}
+
+model NarrativeChunkValue {
+  chunk   NarrativeChunk @relation(fields: [chunkId], references: [id])
+  chunkId String
+  value   Value          @relation(fields: [valueId], references: [id])
+  valueId String
+
+  @@id([chunkId, valueId])
+  @@index([valueId])
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  displayName String?
+  role        String?
+  createdAt   DateTime @default(now())
+}

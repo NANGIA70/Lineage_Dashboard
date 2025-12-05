@@ -2511,11 +2511,46 @@ __turbopack_context__.s([
     "fetchLineage",
     ()=>fetchLineage
 ]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/placeholder-data.ts [app-client] (ecmascript)");
 ;
-function fetchLineage(_valueRef) {
-    // TODO: replace with real HTTP call to lineage service using valueRef
-    return __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sampleLineageData"];
+const LINEAGE_API_BASE_URL = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.LINEAGE_API_BASE_URL || "http://localhost:3001";
+async function fetchLineage(valueRef) {
+    if (!valueRef?.valueId) return __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sampleLineageData"];
+    try {
+        const res = await fetch(`${LINEAGE_API_BASE_URL}/api/lineage/values/${valueRef.valueId}`);
+        if (!res.ok) {
+            console.warn(`Lineage API non-200 (${res.status}); falling back to mock`);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sampleLineageData"];
+        }
+        const data = await res.json();
+        return {
+            cellId: data.value.id,
+            value: data.value.value ?? data.value.label ?? "",
+            sourceTable: data.value.tableId ?? "unknown",
+            sourceCell: `${data.value.rowIndex ?? "-"},${data.value.columnIndex ?? "-"}`,
+            transformations: data.inputs?.map((i)=>i.edge?.transformation).filter(Boolean) ?? [],
+            upstream: data.inputs?.map((i)=>({
+                    id: i.value.id,
+                    type: "source",
+                    name: i.value.label ?? i.value.id,
+                    metadata: {
+                        dataType: i.value.dataType ?? ""
+                    }
+                })) ?? [],
+            downstream: data.outputs?.map((o)=>({
+                    id: o.value.id,
+                    type: "output",
+                    name: o.value.label ?? o.value.id,
+                    metadata: {
+                        dataType: o.value.dataType ?? ""
+                    }
+                })) ?? []
+        };
+    } catch (err) {
+        console.warn("Lineage API fetch failed, falling back to mock:", err);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sampleLineageData"];
+    }
 }
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
@@ -2529,6 +2564,7 @@ __turbopack_context__.s([
     ()=>LineageDrawer
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$database$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Database$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/database.js [app-client] (ecmascript) <export default as Database>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowRight$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/arrow-right.js [app-client] (ecmascript) <export default as ArrowRight>");
@@ -2539,6 +2575,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/separator.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/scroll-area.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lineage$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/lineage-client.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/placeholder-data.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
 "use client";
 ;
 ;
@@ -2547,9 +2586,20 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lineage$2d$client$2e$
 ;
 ;
 ;
+;
 function LineageDrawer({ open, onOpenChange, valueRef }) {
+    _s();
+    const [lineage, setLineage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$placeholder$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sampleLineageData"]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LineageDrawer.useEffect": ()=>{
+            if (!open) return;
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lineage$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fetchLineage"])(valueRef ?? undefined).then(setLineage);
+        }
+    }["LineageDrawer.useEffect"], [
+        open,
+        valueRef
+    ]);
     if (!open) return null;
-    const lineage = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lineage$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fetchLineage"])(valueRef ?? undefined);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "fixed inset-y-0 right-0 z-50 w-[420px] border-l border-border bg-card shadow-xl",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2565,7 +2615,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                     children: "Cell Lineage"
                                 }, void 0, false, {
                                     fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                    lineNumber: 29,
+                                    lineNumber: 36,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2573,13 +2623,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                     children: "Trace data origin and transformations"
                                 }, void 0, false, {
                                     fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                    lineNumber: 30,
+                                    lineNumber: 37,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                            lineNumber: 28,
+                            lineNumber: 35,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2590,18 +2640,18 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 33,
+                                lineNumber: 40,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                            lineNumber: 32,
+                            lineNumber: 39,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                    lineNumber: 27,
+                    lineNumber: 34,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollArea"], {
@@ -2617,7 +2667,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                         children: "Current Value"
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 41,
+                                        lineNumber: 48,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2625,7 +2675,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                         children: lineage.value
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 42,
+                                        lineNumber: 49,
                                         columnNumber: 15
                                     }, this),
                                     valueRef?.valueId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2636,18 +2686,18 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                             children: valueRef.valueId
                                         }, void 0, false, {
                                             fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                            lineNumber: 45,
+                                            lineNumber: 52,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 44,
+                                        lineNumber: 51,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 40,
+                                lineNumber: 47,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2659,7 +2709,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 className: "h-4 w-4 text-muted-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 55,
+                                                lineNumber: 62,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -2667,13 +2717,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 children: "Source"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 56,
+                                                lineNumber: 63,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 54,
+                                        lineNumber: 61,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2687,7 +2737,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: "Table"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 60,
+                                                        lineNumber: 67,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2695,13 +2745,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: lineage.sourceTable
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 61,
+                                                        lineNumber: 68,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 59,
+                                                lineNumber: 66,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2712,7 +2762,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: "Cell"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 64,
+                                                        lineNumber: 71,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2720,25 +2770,25 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: lineage.sourceCell
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 65,
+                                                        lineNumber: 72,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 63,
+                                                lineNumber: 70,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 58,
+                                        lineNumber: 65,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 53,
+                                lineNumber: 60,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2750,7 +2800,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 className: "h-4 w-4 text-muted-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 73,
+                                                lineNumber: 80,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -2758,13 +2808,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 children: "Transformations"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 74,
+                                                lineNumber: 81,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 72,
+                                        lineNumber: 79,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2777,7 +2827,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: index + 1
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 79,
+                                                        lineNumber: 86,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2785,29 +2835,29 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                         children: transform
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 82,
+                                                        lineNumber: 89,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, index, true, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 78,
+                                                lineNumber: 85,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 76,
+                                        lineNumber: 83,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 71,
+                                lineNumber: 78,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 88,
+                                lineNumber: 95,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2819,7 +2869,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 className: "h-4 w-4 text-muted-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 93,
+                                                lineNumber: 100,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -2827,13 +2877,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 children: "Upstream Sources"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 94,
+                                                lineNumber: 101,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 92,
+                                        lineNumber: 99,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2850,7 +2900,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 children: node.type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 100,
+                                                                lineNumber: 107,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2858,13 +2908,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 children: node.name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 103,
+                                                                lineNumber: 110,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 99,
+                                                        lineNumber: 106,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2879,7 +2929,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                        lineNumber: 108,
+                                                                        lineNumber: 115,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     " ",
@@ -2887,29 +2937,29 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 ]
                                                             }, key, true, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 107,
+                                                                lineNumber: 114,
                                                                 columnNumber: 25
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 105,
+                                                        lineNumber: 112,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, node.id, true, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 98,
+                                                lineNumber: 105,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 96,
+                                        lineNumber: 103,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 91,
+                                lineNumber: 98,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2921,7 +2971,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 className: "h-4 w-4 text-muted-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 120,
+                                                lineNumber: 127,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -2929,13 +2979,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                 children: "Downstream Outputs"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 121,
+                                                lineNumber: 128,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 119,
+                                        lineNumber: 126,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2952,7 +3002,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 children: node.type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 127,
+                                                                lineNumber: 134,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2960,13 +3010,13 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 children: node.name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 130,
+                                                                lineNumber: 137,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 126,
+                                                        lineNumber: 133,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2981,7 +3031,7 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                        lineNumber: 135,
+                                                                        lineNumber: 142,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     " ",
@@ -2989,40 +3039,40 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                                                                 ]
                                                             }, key, true, {
                                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                                lineNumber: 134,
+                                                                lineNumber: 141,
                                                                 columnNumber: 25
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                        lineNumber: 132,
+                                                        lineNumber: 139,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, node.id, true, {
                                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                                lineNumber: 125,
+                                                lineNumber: 132,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                        lineNumber: 123,
+                                        lineNumber: 130,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                                lineNumber: 118,
+                                lineNumber: 125,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                        lineNumber: 38,
+                        lineNumber: 45,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                    lineNumber: 37,
+                    lineNumber: 44,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3032,26 +3082,27 @@ function LineageDrawer({ open, onOpenChange, valueRef }) {
                         children: "Lineage data will be populated from the backend API"
                     }, void 0, false, {
                         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                        lineNumber: 148,
+                        lineNumber: 155,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/lineage/lineage-drawer.tsx",
-                    lineNumber: 147,
+                    lineNumber: 154,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/lineage/lineage-drawer.tsx",
-            lineNumber: 25,
+            lineNumber: 32,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/lineage/lineage-drawer.tsx",
-        lineNumber: 24,
+        lineNumber: 31,
         columnNumber: 5
     }, this);
 }
+_s(LineageDrawer, "DqMQ1X4E3rDOGQMGKXoLm42nQps=");
 _c = LineageDrawer;
 var _c;
 __turbopack_context__.k.register(_c, "LineageDrawer");

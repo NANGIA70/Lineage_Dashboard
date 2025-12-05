@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { X, Database, ArrowRight, GitBranch, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { fetchLineage } from "@/lib/lineage-client"
 import type { ValueRef } from "@/lib/domain"
 import type { LineageData } from "@/lib/types"
+import { sampleLineageData } from "@/lib/placeholder-data"
 
 interface LineageDrawerProps {
   open: boolean
@@ -16,9 +18,14 @@ interface LineageDrawerProps {
 }
 
 export function LineageDrawer({ open, onOpenChange, valueRef }: LineageDrawerProps) {
-  if (!open) return null
+  const [lineage, setLineage] = useState<LineageData>(sampleLineageData)
 
-  const lineage: LineageData = fetchLineage(valueRef ?? undefined)
+  useEffect(() => {
+    if (!open) return
+    fetchLineage(valueRef ?? undefined).then(setLineage)
+  }, [open, valueRef])
+
+  if (!open) return null
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-[420px] border-l border-border bg-card shadow-xl">
