@@ -5,21 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { sampleLineageData } from "@/lib/placeholder-data"
+import { fetchLineage } from "@/lib/lineage-client"
+import type { ValueRef } from "@/lib/domain"
 import type { LineageData } from "@/lib/types"
 
 interface LineageDrawerProps {
-  isOpen: boolean
-  onClose: () => void
-  cellValue: string | number | null
-  lineageId: string | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  valueRef?: ValueRef | null
 }
 
-export function LineageDrawer({ isOpen, onClose, cellValue, lineageId }: LineageDrawerProps) {
-  if (!isOpen) return null
+export function LineageDrawer({ open, onOpenChange, valueRef }: LineageDrawerProps) {
+  if (!open) return null
 
-  // TODO: Replace with actual API call using lineageId
-  const lineage: LineageData = sampleLineageData
+  const lineage: LineageData = fetchLineage(valueRef ?? undefined)
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-[420px] border-l border-border bg-card shadow-xl">
@@ -30,7 +29,7 @@ export function LineageDrawer({ isOpen, onClose, cellValue, lineageId }: Lineage
             <h3 className="text-lg font-semibold text-card-foreground">Cell Lineage</h3>
             <p className="text-sm text-muted-foreground">Trace data origin and transformations</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -40,11 +39,11 @@ export function LineageDrawer({ isOpen, onClose, cellValue, lineageId }: Lineage
             {/* Current Value */}
             <div className="rounded-lg border border-border bg-muted/30 p-4">
               <div className="text-sm text-muted-foreground mb-1">Current Value</div>
-              <div className="text-2xl font-semibold text-foreground">{cellValue ?? lineage.value}</div>
-              {lineageId && (
+              <div className="text-2xl font-semibold text-foreground">{lineage.value}</div>
+              {valueRef?.valueId && (
                 <div className="mt-2">
                   <Badge variant="outline" className="text-xs font-mono">
-                    {lineageId}
+                    {valueRef.valueId}
                   </Badge>
                 </div>
               )}

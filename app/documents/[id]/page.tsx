@@ -1,6 +1,7 @@
 "use client"
 
 import { use } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { getDocumentById, getRunsByDocumentId, getUserById } from "@/lib/placeholder-data"
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowLeft, Building2, Calendar, User, Clock, Play, ChevronRight } from "lucide-react"
+import { ArrowLeft, Building2, Calendar, User, Clock, Play } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notFound } from "next/navigation"
 
@@ -33,11 +34,8 @@ const runStatusStyles = {
   pending: "bg-muted text-muted-foreground",
 }
 
-interface DocumentDetailPageProps {
-  params: Promise<{ id: string }>
-}
-
-export default function DocumentDetailPage({ params }: DocumentDetailPageProps) {
+export default function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter()
   const { id } = use(params)
   const document = getDocumentById(id)
 
@@ -131,12 +129,16 @@ export default function DocumentDetailPage({ params }: DocumentDetailPageProps) 
                     <TableHead>Start Time</TableHead>
                     <TableHead>End Time</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead>Triggered By</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {runs.map((run) => (
-                    <TableRow key={run.id} className="group">
+                    <TableRow
+                      key={run.id}
+                      className="group cursor-pointer hover:bg-accent/40 transition-colors"
+                      onClick={() => router.push(`/documents/${document.id}/runs/${run.id}`)}
+                    >
                       <TableCell className="font-mono text-sm">{run.id}</TableCell>
                       <TableCell>v{run.version}</TableCell>
                       <TableCell>{run.workflowName}</TableCell>
@@ -147,13 +149,7 @@ export default function DocumentDetailPage({ params }: DocumentDetailPageProps) 
                           {run.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/documents/${document.id}/runs/${run.id}`}>
-                            <ChevronRight className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </TableCell>
+                      <TableCell>{run.triggeredBy}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -4,14 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import type { RunTable, TableCell as TableCellType } from "@/lib/types"
+import type { ValueRef } from "@/lib/domain"
 
 interface TableViewerProps {
   table: RunTable
   data: { headers: string[]; rows: TableCellType[][] }
-  onCellClick: (value: string | number, lineageId: string | null) => void
+  onValueClick: (valueRef: ValueRef) => void
 }
 
-export function TableViewer({ table, data, onCellClick }: TableViewerProps) {
+export function TableViewer({ table, data, onValueClick }: TableViewerProps) {
   return (
     <Card>
       <CardHeader>
@@ -37,18 +38,20 @@ export function TableViewer({ table, data, onCellClick }: TableViewerProps) {
                       key={colIndex}
                       className={cn(
                         "whitespace-nowrap",
-                        cell.isMetric && cell.lineageId && "cursor-pointer hover:bg-primary/10 transition-colors",
+                        cell.isMetric &&
+                          cell.valueRef &&
+                          "cursor-pointer hover:bg-primary/10 transition-colors",
                       )}
                       onClick={() => {
-                        if (cell.isMetric && cell.lineageId) {
-                          onCellClick(cell.value, cell.lineageId)
+                        if (cell.isMetric && cell.valueRef) {
+                          onValueClick(cell.valueRef)
                         }
                       }}
                     >
                       <span
                         className={cn(
                           cell.isMetric &&
-                            cell.lineageId &&
+                            cell.valueRef &&
                             "underline decoration-dotted decoration-primary/50 underline-offset-2",
                         )}
                       >

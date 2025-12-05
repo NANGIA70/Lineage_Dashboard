@@ -1,3 +1,5 @@
+import type { ValueRef } from "./domain"
+
 // Core entities
 export interface User {
   id: string
@@ -45,8 +47,8 @@ export interface TableCell {
   rowIndex: number
   colIndex: number
   value: string | number
-  lineageId: string | null // Reference to lineage API
   isMetric: boolean
+  valueRef?: ValueRef | null
 }
 
 export interface NarrativeSection {
@@ -54,8 +56,12 @@ export interface NarrativeSection {
   runId: string
   name: string // e.g., "Financial Statement Analysis", "Credit Comparables"
   order: number
-  content: string // Contains text with {{METRIC:id}} placeholders
+  tokens: NarrativeContentToken[]
 }
+
+export type NarrativeContentToken =
+  | { type: "text"; text: string }
+  | { type: "value"; text: string; valueRef: ValueRef }
 
 export interface NarrativeMetric {
   id: string

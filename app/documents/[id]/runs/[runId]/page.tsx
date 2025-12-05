@@ -20,6 +20,7 @@ import { notFound } from "next/navigation"
 import { LineageDrawer } from "@/components/lineage/lineage-drawer"
 import { NarrativeViewer } from "@/components/run/narrative-viewer"
 import { TableViewer } from "@/components/run/table-viewer"
+import type { ValueRef } from "@/lib/domain"
 
 const runStatusStyles = {
   running: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -46,9 +47,9 @@ export default function RunDetailPage({ params }: RunDetailPageProps) {
 
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [drawerCell, setDrawerCell] = useState<{ value: string | number; lineageId: string | null } | null>(null)
+  const [selectedValueRef, setSelectedValueRef] = useState<ValueRef | null>(null)
 
-  if (!document || !run) {
+  if (!document || !run || run.documentId !== document.id) {
     notFound()
   }
 
@@ -56,19 +57,26 @@ export default function RunDetailPage({ params }: RunDetailPageProps) {
   const narratives = getNarrativesByRunId(runId)
   const StatusIcon = runStatusIcons[run.status]
 
-  const handleCellClick = (value: string | number, lineageId: string | null) => {
-    setDrawerCell({ value, lineageId })
-    setDrawerOpen(true)
-  }
-
-  const handleMetricClick = (value: string, lineageId: string | null) => {
-    setDrawerCell({ value, lineageId })
+  const handleValueSelect = (valueRef: ValueRef) => {
+    setSelectedValueRef(valueRef)
     setDrawerOpen(true)
   }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/documents" className="hover:text-foreground">
+            Documents
+          </Link>
+          <span>/</span>
+          <Link href={`/documents/${id}`} className="hover:text-foreground">
+            {document.name}
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">Run {run.id}</span>
+        </div>
+
         {/* Back Navigation */}
         <Button variant="ghost" size="sm" asChild className="gap-2">
           <Link href={`/documents/${id}`}>
@@ -93,50 +101,52 @@ export default function RunDetailPage({ params }: RunDetailPageProps) {
           </div>
         </div>
 
-        {/* Run Overview */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Start Time</p>
-                  <p className="font-medium text-foreground">{new Date(run.startTime).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">End Time</p>
-                  <p className="font-medium text-foreground">
-                    {run.endTime ? new Date(run.endTime).toLocaleString() : "In progress..."}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Triggered By</p>
-                  <p className="font-medium text-foreground">{run.triggeredBy}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Grid3X3 className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Tables Generated</p>
-                  <p className="font-medium text-foreground">{tables.length}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tabs: Tables and Narrative */}
-        <Tabs defaultValue="tables" className="space-y-4">
+        {/* Tabs: Overview, Tables and Narrative */}
+        <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="tables">Tables</TabsTrigger>
             <TabsTrigger value="narrative">Narrative</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid gap-4 md:grid-cols-4">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Start Time</p>
+                      <p className="font-medium text-foreground">{new Date(run.startTime).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">End Time</p>
+                      <p className="font-medium text-foreground">
+                        {run.endTime ? new Date(run.endTime).toLocaleString() : "In progress..."}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Triggered By</p>
+                      <p className="font-medium text-foreground">{run.triggeredBy}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Grid3X3 className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Tables Generated</p>
+                      <p className="font-medium text-foreground">{tables.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="tables" className="space-y-4">
             {/* Table List */}
@@ -182,25 +192,20 @@ export default function RunDetailPage({ params }: RunDetailPageProps) {
                 <TableViewer
                   table={tables.find((t) => t.id === selectedTable)!}
                   data={sampleTableData}
-                  onCellClick={handleCellClick}
+                  onValueClick={handleValueSelect}
                 />
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="narrative" className="space-y-4">
-            <NarrativeViewer sections={narratives} onMetricClick={handleMetricClick} />
+            <NarrativeViewer sections={narratives} onValueClick={handleValueSelect} />
           </TabsContent>
         </Tabs>
       </div>
 
       {/* Lineage Drawer */}
-      <LineageDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        cellValue={drawerCell?.value ?? null}
-        lineageId={drawerCell?.lineageId ?? null}
-      />
+      <LineageDrawer open={drawerOpen} onOpenChange={setDrawerOpen} valueRef={selectedValueRef} />
     </DashboardLayout>
   )
 }

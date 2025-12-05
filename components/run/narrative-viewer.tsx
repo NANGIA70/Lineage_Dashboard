@@ -1,38 +1,28 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { NarrativeSection } from "@/lib/types"
+import type { NarrativeContentToken, NarrativeSection } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import type { ValueRef } from "@/lib/domain"
 
 interface NarrativeViewerProps {
   sections: NarrativeSection[]
-  onMetricClick: (value: string, lineageId: string | null) => void
+  onValueClick: (valueRef: ValueRef) => void
 }
 
-// Parse content and replace {{METRIC:value}} with clickable chips
-function parseNarrativeContent(content: string, onMetricClick: (value: string, lineageId: string | null) => void) {
-  const parts: React.ReactNode[] = []
-  const regex = /\{\{METRIC:([^}]+)\}\}/g
-  let lastIndex = 0
-  let match
-
-  while ((match = regex.exec(content)) !== null) {
-    // Add text before the match
-    if (match.index > lastIndex) {
-      parts.push(content.slice(lastIndex, match.index))
+// Render text/value tokens with clickable value chips
+function renderTokens(tokens: NarrativeContentToken[], onValueClick: (valueRef: ValueRef) => void) {
+  return tokens.map((token, index) => {
+    if (token.type === "text") {
+      return <React.Fragment key={`text-${index}`}>{token.text}</React.Fragment>
     }
 
-    // Add the metric chip
-    const metricValue = match[1]
-    // Generate a fake lineage ID for demo purposes
-    const lineageId = `LIN-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
-
-    parts.push(
+    return (
       <button
-        key={match.index}
-        onClick={() => onMetricClick(metricValue, lineageId)}
+        key={`value-${token.valueRef.valueId}-${index}`}
+        onClick={() => onValueClick(token.valueRef)}
         className={cn(
           "inline-flex items-center px-2 py-0.5 mx-0.5 rounded-md",
           "bg-primary/10 text-primary font-medium text-sm",
@@ -40,22 +30,13 @@ function parseNarrativeContent(content: string, onMetricClick: (value: string, l
           "border border-primary/20",
         )}
       >
-        {metricValue}
-      </button>,
+        {token.text}
+      </button>
     )
-
-    lastIndex = regex.lastIndex
-  }
-
-  // Add remaining text
-  if (lastIndex < content.length) {
-    parts.push(content.slice(lastIndex))
-  }
-
-  return parts
+  })
 }
 
-export function NarrativeViewer({ sections, onMetricClick }: NarrativeViewerProps) {
+export function NarrativeViewer({ sections, onValueClick }: NarrativeViewerProps) {
   if (sections.length === 0) {
     return (
       <Card>
@@ -74,7 +55,7 @@ export function NarrativeViewer({ sections, onMetricClick }: NarrativeViewerProp
             <CardTitle className="text-lg">{section.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-foreground leading-relaxed">{parseNarrativeContent(section.content, onMetricClick)}</p>
+            <p className="text-foreground leading-relaxed">{renderTokens(section.tokens, onValueClick)}</p>
           </CardContent>
         </Card>
       ))}
